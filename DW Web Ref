@@ -1,0 +1,29 @@
+WITH Orders_Yesterday AS (
+    SELECT
+        CASE
+            WHEN o.Company = 'MendIt' THEN 'MendIt'
+            WHEN Channel = 'W' THEN 'Web'
+            WHEN Channel = 'A' THEN 'Amazon'
+            WHEN Channel = 'E' THEN 'EBay'
+            WHEN Channel IN ('B', 'B2B Team', 'B2B', 'Trade') THEN 'B2B'
+            WHEN Channel = 'M' THEN 'Web'
+            ELSE 'Web'add
+        END AS Channel,
+        o.Company,
+        OrderNumber,
+        OrderDate,
+        WebRef,
+        PaymentType,
+        (LineSell + CarriageSell + OtherSell - ISNULL(Vouchers,0)) AS Revenue,
+        ROW_NUMBER() OVER (PARTITION BY OrderNumber ORDER BY OrderDate DESC) AS rn
+    FROM dbo.OpenOrders o WITH (NOLOCK)
+    WHERE CAST(OrderDate AS DATE) = '2025-12-04'
+      AND Company = 'Chillblast'
+      AND (LineSell + CarriageSell + OtherSell - ISNULL(Vouchers,0)) > 0
+	  AND [LineStatus] IN ('I', 'O')
+AND [IsCredit] = 0
+)
+SELECT Channel, Company, OrderNumber, OrderDate, WebRef, PaymentType, Revenue
+FROM Orders_Yesterday
+WHERE rn = 1
+ORDER BY OrderDate DESC;
