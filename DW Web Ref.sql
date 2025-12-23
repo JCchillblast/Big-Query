@@ -7,7 +7,7 @@ WITH Orders_Yesterday AS (
             WHEN Channel = 'E' THEN 'EBay'
             WHEN Channel IN ('B', 'B2B Team', 'B2B', 'Trade') THEN 'B2B'
             WHEN Channel = 'M' THEN 'Web'
-            ELSE 'Web'add
+            ELSE 'Web'
         END AS Channel,
         o.Company,
         OrderNumber,
